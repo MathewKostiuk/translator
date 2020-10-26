@@ -7,6 +7,7 @@ import Koa from "koa";
 import next from "next";
 import Router from "koa-router";
 import session from "koa-session";
+import koaBody from "koa-body";
 import * as handlers from "./handlers/index";
 dotenv.config();
 const port = parseInt(process.env.PORT, 10) || 8081;
@@ -53,6 +54,14 @@ app.prepare().then(() => {
       version: ApiVersion.October19,
     })
   );
+  router.post("(/translate)", koaBody(), verifyRequest(), async (ctx) => {
+    const text = ctx.request.body;
+    const response = await handlers.translateText(text, 'JA');
+    
+    ctx.body = response;
+    ctx.res.statusCode = 200;
+  });
+  
   router.get("(.*)", verifyRequest(), async (ctx) => {
     await handle(ctx.req, ctx.res);
     ctx.respond = false;
